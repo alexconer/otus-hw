@@ -8,16 +8,16 @@ namespace PromoCodeFactory.DataAccess.Repositories
 {
     public class InMemoryRepository<T>: IRepository<T> where T: BaseEntity
     {
-        protected IEnumerable<T> Data { get; set; }
+        protected List<T> Data { get; set; }
 
         public InMemoryRepository(IEnumerable<T> data)
         {
-            Data = data;
+            Data = data.ToList();
         }
 
         public Task<IEnumerable<T>> GetAllAsync()
         {
-            return Task.FromResult(Data);
+            return Task.FromResult(Data.AsEnumerable());
         }
 
         public Task<T> GetByIdAsync(Guid id)
@@ -27,7 +27,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
 
         public Task<T> AddAsync(T entity)
         {
-            Data = Data.Append(entity);
+            Data.Add(entity);
             return Task.FromResult(entity);
         }
         
@@ -39,8 +39,8 @@ namespace PromoCodeFactory.DataAccess.Repositories
                 return null;
             }
             
-            var index = Data.ToList().IndexOf(item);
-            Data.ToList()[index] = entity;
+            var index = Data.IndexOf(item);
+            Data[index] = entity;
             return Task.FromResult(entity);
         }
 
@@ -53,7 +53,7 @@ namespace PromoCodeFactory.DataAccess.Repositories
                 return Task.FromResult(false);
             }
             
-            Data = Data.Where(x => x.Id != id);
+            Data = Data.FindAll(x => x.Id != id);
             return Task.FromResult(true);
         }
     }
